@@ -14,6 +14,11 @@ uint arglen(uint8 op);
  */
 int opcode_split(uint8 opcode, uint8 *body, uint8 *arg);
 
+/* Execute the set of instructions. The function
+ * blocks until the program is terminated.
+ */
+void execute(const uint8 *opcodes, uint len);
+
 
 struct regs 
 {	
@@ -33,27 +38,44 @@ struct regs
 	int r_d;
 };
 
-void execute(uint8 *opcodes, uint len);
-
-
 struct regs* regs_create();
 void regs_destroy(struct regs* regs);
+
+
+
+const int g_memory_initial_size = 1024;
+struct memory
+{
+	void *data;
+	uint len;
+};
+
+struct memory* memory_create();
+void memory_destroy(struct memory*);
+
+// Double the available memory
+void memory_expand(struct memory*);
 
 
 struct env 
 {
 	struct regs *reg;
+	struct memory *mem;
 };
 
 struct env* env_create();
 void env_destroy(struct env *env);
+void env_increase_sp(struct env *env, uint len);
+int* env_get_reg(struct env *env, uint8 reg);
+int* env_get_int(struct env *env, uint addr);
+
 
 
 /* Opcode implementations are until they are known to function
  * properly declared via this macro.
  */
 #define FUNC_OPCODE(_FUNCTION)			\
-	void _FUNCTION(struct env *e, uint8 opcode, void *args)
+	void _FUNCTION(struct env *env, uint8 op, const void *exarg)
 
 FUNC_OPCODE(op_push);
 FUNC_OPCODE(op_pop);

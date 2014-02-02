@@ -1,12 +1,13 @@
 #include "env.h"
 #include "bytecode.h"
+#include "log.h"
 
 #include <malloc.h>
 #include <string.h>
 
 
 
-static void execute_op(struct env*, uint8 *ops);
+static void execute_op(struct env*, const uint8 *ops);
 
 
 
@@ -61,7 +62,7 @@ opcode_split(uint8 op, uint8 *body, uint8 *arg)
 
 
 void 
-execute(uint8 *opcodes, uint len) 
+execute(const uint8 *opcodes, uint len) 
 {
 	struct env *env = env_create();
 
@@ -73,42 +74,47 @@ execute(uint8 *opcodes, uint len)
 }
 
 static void
-execute_op(struct env *env, uint8 *ops)
+execute_op(struct env *env, const uint8 *ops)
 {
 	uint8 op;
 	uint8 body;
 	uint8 arg;
+	const void *exarg = NULL;
 
 	op = ops[env->reg->r_ip++];
+
+	exarg = &ops[env->reg->r_ip];
+	env->reg->r_ip += arglen(op);
+
 	opcode_split(op, &body, &arg);
 
 	switch (body) {
-		case OP_PUSH:		break;
-		case OP_POP:		break;
-		case OP_MOV:		break;
+		case OP_PUSH:	op_push(env, op, exarg);	break;
+		case OP_POP:	op_pop(env, op, exarg); 	break;
+		case OP_MOV:	op_mov(env, op, exarg);		break;
 
-		case OP_CALL:		break;
-		case OP_RET:		break;
+		case OP_CALL:	op_call(env, op, exarg);	break;
+		case OP_RET:	op_ret(env, op, exarg);		break;
 
-		case OP_ADD:		break;
-		case OP_SUB:		break;
-		case OP_MUL:		break;
-		case OP_DIV:		break;
-		case OP_MOD:		break;
-		case OP_LS:			break;
-		case OP_RS:			break;
+		case OP_ADD:	op_add(env, op, exarg);		break;
+		case OP_SUB:	op_sub(env, op, exarg);		break;
+		case OP_MUL:	op_mul(env, op, exarg);		break;
+		case OP_DIV:	op_div(env, op, exarg);		break;
+		case OP_MOD:	op_mod(env, op, exarg);		break;
+		case OP_LS:		op_ls(env, op, exarg);		break;
+		case OP_RS:		op_rs(env, op, exarg);		break;
 
-		case OP_XOR:		break;
-		case OP_AND:		break;
-		case OP_CMP:		break;
+		case OP_XOR:	op_xor(env, op, exarg);		break;
+		case OP_AND:	op_and(env, op, exarg);		break;
+		case OP_CMP:	op_cmp(env, op, exarg);		break;
 
-		case OP_JMP:		break;
-		case OP_JE:			break;
-		case OP_JNE:		break;
-		case OP_JL:			break;
-		case OP_JLE:		break;
-		case OP_JG:			break;
-		case OP_JGE:		break;
+		case OP_JMP:	op_jmp(env, op, exarg);		break;
+		case OP_JE:		op_je(env, op, exarg);		break;
+		case OP_JNE:	op_jne(env, op, exarg);		break;
+		case OP_JL:		op_jl(env, op, exarg);		break;
+		case OP_JLE:	op_jle(env, op, exarg);		break;
+		case OP_JG:		op_jg(env, op, exarg);		break;
+		case OP_JGE:	op_jge(env, op, exarg);		break;
 	}
 }
 
@@ -131,6 +137,34 @@ regs_destroy(struct regs *env)
 
 
 
+struct memory*
+memory_create()
+{
+	struct memory *memory;
+	memory = malloc(sizeof(struct memory));
+
+	memory->len = g_memory_initial_size;
+	memory->data = malloc(memory->len);
+
+	return memory;
+}
+
+void 
+memory_destroy(struct memory *memory)
+{
+	free(memory->data);
+	free(memory);
+}
+
+void 
+memory_expand(struct memory *memory) 
+{
+	memory->len *= 2;
+	memory->data = realloc(memory->data, memory->len);
+}
+
+
+
 struct env*
 env_create()
 {
@@ -140,6 +174,7 @@ env_create()
 	memset(env, 0, sizeof(struct env));
 
 	env->reg = regs_create();
+	env->mem = memory_create();
 
 	return env;
 }
@@ -148,7 +183,49 @@ void
 env_destroy(struct env *env) 
 {
 	regs_destroy(env->reg);
+	memory_destroy(env->mem);
 	free(env);
+}
+
+void
+env_increase_sp(struct env *env, uint len)
+{
+	env->reg->r_sp += len;
+
+	if (env->reg->r_sp >= env->mem->len) {
+		memory_expand(env->mem);
+	}
+}
+
+int*
+env_get_reg(struct env *env, uint8 reg)
+{
+	switch (reg) {
+		case REG_A:		return &env->reg->r_a;
+		case REG_B:		return &env->reg->r_b;
+		case REG_C:		return &env->reg->r_c;
+		case REG_D: 	return &env->reg->r_d;
+
+		case REG_BP: 	return &env->reg->r_bp;
+		case REG_SP: 	return &env->reg->r_sp;
+
+	}
+
+	return NULL;
+}
+
+int*
+env_get_int(struct env *env, uint addr)
+{
+	if (env->mem->len + 4 > addr) {
+		return env->mem->data + addr;
+	}
+
+	char str[128];
+	sprintf(str, "Attempting to read addres %u", addr);
+	panglog(LOG_CRITICAL, str);
+
+	return NULL;
 }
 
 
@@ -162,17 +239,44 @@ env_destroy(struct env *env)
  */
 FUNC_OPCODE(op_push) 
 {
+	int value = *env_get_reg(env, op & MASK_REG);
 
+	// Grow the stack by 4
+	env_increase_sp(env, sizeof(int));
+
+	// Get the pointer to the previous SP location
+	int *ptr = env_get_int(env, env->reg->r_sp - sizeof(int));
+	*ptr = value;
 }
 
 FUNC_OPCODE(op_pop) 
 {
+	int *reg = env_get_reg(env, op & MASK_REG);
 
+	// Get the address of the int at the top of the stack
+	int *stack = env_get_int(env, env->reg->r_sp);
+	stack -= sizeof(int);
+
+	*reg = *stack;
 }
 
 FUNC_OPCODE(op_mov) 
 {
+	int *reg;	// Internal register arg
+	int *ext;	// External arg
+	int arg = *(int*)exarg;
 
+	if (op & OP_MASK_MOV_32BIT) {
+		ext = env_get_int(env, arg);
+	} else {
+		ext = env_get_reg(env, arg);
+	}
+
+	if (op & OP_MASK_MOV_TO_REG) {
+		*reg = *ext;
+	} else {
+		*ext = *reg;
+	}
 }
 
 

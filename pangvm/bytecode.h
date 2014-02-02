@@ -88,4 +88,24 @@
 #define OP_JGE 			0xFE
 
 
+
+/* Registers may be stored in the two LO bits in
+ * an operation, or stand by themselves in an 8 bit
+ * external argument. Regardless, the same values are used.
+ */
+#define MASK_REG 		0x07
+#define REG_A 			0x00
+#define REG_B 			0x01
+#define REG_C 			0x02
+#define REG_D 			0x03
+
+#define REG_SP 			0x06
+#define REG_BP 			0x07
+
+/* The literal results of a comparison.
+ */
+#define CMP_RES_EQUAL 	0x01
+#define CMP_RES_LESS 	0x02
+#define CMP_RES_GREAT	0x04
+
 #endif /* __PANG_BYTECODE_H__ */
