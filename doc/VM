@@ -1,0 +1,104 @@
+VIRTUAL MACHINE DOCUMENTATION
+
+1) 	GENERAL
+1a)	Memory Segments
+2) 	BYTECODE
+2a)	Stack & memory instructions
+2b)	Function instructions
+2c)	Arithmetic & comparison instructions
+
+
+1)	GENERAL
+PangVM is a register based VM. It's memory is divided in
+two main areas - the program section and the stack. The VM
+is designed alongside Pang, but can be used for anything.
+
+
+1a) Memory Segments
+The program segment contains constant definitions such as
+strings and numbers and the bytecode itself. It's read-only.
+The first four bytes contains the offset of the first 
+bytecode instruction. The area in between contains data
+required by the program. 
+
+The stack is the area modified by the bytecode, and is 
+dynamically expanded by the interpreter as it's needed.
+Unlike the program segment, the stack segment has almost
+no limitations on what can / should be done with it. 
+
+
+2) 	BYTECODE
+The Pang instruction set is as simple as possible. Future
+expansion is possible. 
+
+There are three different types of instructions in the 
+Pang IS:
+
+	1. STACKMEM
+		Instructions altering the stack and memory.
+
+	2. FUNCTION
+		Instructions handling functions.
+
+	3. ARIT_CMP
+		Arithmetic operations and comparisons.
+
+Each instruction can take a 0, 1 or 4 byte argument. 
+
+STACKMEM instructions require a register argument. The
+register is encoded into the operation itself. 
+
+ARIT_CMP instructions use the low order bit to define
+whehter it's external argument is 32 or 8 bit. 
+
+2a)	Stack & memory instructions
+STACKMEM instructions are allocated the range 0x10 to
+0x7F. The low order nibble is used to define the register
+used by the instruction.
+
+OP_PUSH		0x10
+	Push a register onto the stack.
+
+OP_POP		0x20
+	Pop from the stack to a register.
+
+OP_MOV		0x30
+	The 4th bit in the LO nibble is 1 if the external
+	argument is 32 bit and references a memory address. 
+	It's 0 if the external arg is 8 bit and references 
+	a registry. 
+
+	The 3rd bit in the LO nibble is 1 if the value held
+	in the external value should be put moved to the 
+	registry. The register value is moved to the external
+	argument if this bit is 0.
+
+	The two LO bits in the LO nibble defines the registry
+	to move to/from. The available registers are RA-RD.
+
+	Examples:
+	Move the contents of RD to RA:	
+		0x33 0x00 		(RD -> RA)
+		or
+		0x3B 0x03		(RA <- RD)
+
+	Move from memory to RA:
+		0x3C 0xFF 0xFF 0xFF 0xFF
+
+	Move from RA to memory:
+		0x39 0xFF 0xFF 0xFF 0xFF
+
+2b)	Function instructions
+Function instructions are allocated the range 0x80 to 
+0x8F. 
+
+OP_CALL		0x80 		4 bytes
+	Push the specialized registers and move to the
+	specified offset in the program segment. 
+
+OP_RET		0x81 		0 bytes
+	Pop the specialized registers from the stack. Moves
+	to the next instruction after the previous OP_CALL.
+
+2c)	Arithmetic & comparison instructions
+TODO!
