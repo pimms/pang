@@ -54,64 +54,10 @@ regs_create()
 	return regs;
 }
 
-struct regs*
-regs_copy(struct regs *orig)
-{
-	struct regs *cpy = regs_create();
-	memcpy(cpy, orig, sizeof(struct regs));
-
-	return cpy;
-}
-
 void
 regs_destroy(struct regs *env) 
 {
 	free(env);
-}
-
-
-
-
-struct regs_stack*
-regs_stack_create() 
-{
-	struct regs_stack *stack;
-
-	stack = malloc(sizeof(struct regs_stack));
-	memset(stack, 0, sizeof(struct regs_stack));
-
-	stack->cur = regs_create();
-
-	return stack;
-}
-
-void 
-regs_stack_destroy(struct regs_stack *stack) 
-{
-	if (stack->cur) {
-		regs_destroy(stack->cur);
-	}
-
-	free(stack);
-}
-
-struct regs_stack*
-regs_stack_push(struct regs_stack *stack)
-{
-	struct regs_stack *cpy;
-
-	cpy = regs_stack_create();
-	cpy->prev = stack;
-
-	return cpy;
-}
-
-struct regs_stack*
-regs_stack_pop(struct regs_stack *stack) 
-{
-	struct regs_stack *prev = stack->prev;
-	regs_stack_destroy(stack);
-	return prev;
 }
 
 
@@ -124,7 +70,7 @@ env_create()
 	env = malloc(sizeof(struct env));
 	memset(env, 0, sizeof(struct env));
 
-	env->stack = regs_stack_create();
+	env->reg = regs_create();
 
 	return env;
 }
@@ -132,10 +78,6 @@ env_create()
 void 
 env_destroy(struct env *env) 
 {
-	// Destroy all register containers
-	while (env->stack) {
-		env->stack = regs_stack_pop(env->stack);
-	}
-
+	regs_destroy(env->reg);
 	free(env);
 }

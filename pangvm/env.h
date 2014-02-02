@@ -27,30 +27,16 @@ struct regs
 	int r_d;
 };
 
-struct regs_stack
-{
-	struct regs *cur;
-	struct regs_stack *prev;
-};
-
-
 void execute(uint8 *opcodes, uint len);
 
 
 struct regs* regs_create();
 void regs_destroy(struct regs* regs);
-struct regs* regs_copy(struct regs* orig);
-
-struct regs_stack* regs_stack_create();
-void regs_stack_destroy(struct regs_stack *stack);
-struct regs_stack* regs_stack_push(struct regs_stack *stack);
-struct regs_stack* regs_stack_pop(struct regs_stack *stack);
-
 
 
 struct env 
 {
-	struct regs_stack *stack;
+	struct regs *reg;
 };
 
 struct env* env_create();
