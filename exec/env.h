@@ -3,7 +3,9 @@
 
 #include "../pang.h"
 
-struct env 
+
+
+struct regs 
 {	
 	// Instruction pointer 
 	int r_ip;
@@ -21,13 +23,24 @@ struct env
 	int r_d;
 };
 
+struct regs_stack
+{
+	struct regs *cur;
+	struct regs_stack *prev;
+};
+
 
 void execute(uint8 *opcodes, uint len);
 
 
-struct env* env_create();
-void env_destroy(struct env* env);
-struct env* env_copy(struct env* orig);
+struct regs* regs_create();
+void regs_destroy(struct regs* regs);
+struct regs* regs_copy(struct regs* orig);
+
+struct regs_stack* regs_stack_create();
+void regs_stack_destroy(struct regs_stack *stack);
+struct regs_stack* regs_stack_push(struct regs_stack *stack);
+struct regs_stack* regs_stack_pop(struct regs_stack *stack);
 
 /* Returns the number of bytes in the operations
  * external argument. */

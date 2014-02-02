@@ -65,7 +65,7 @@
  * reference, or 0 if it is a 32-bit address reference.
  */
 #define OP_MASK_ARIT_CMP 0xFE
-#define OP_MASK_ARIT_CMP_ARG 0x01
+#define OP_MASK_ARIT_CMP_32BIT 0x01
 
 #define OP_ADD 			0xC2
 #define OP_SUB 			0xC4

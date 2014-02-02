@@ -5,47 +5,89 @@
 #include <string.h>
 
 
-struct env*
-env_create() 
+void 
+execute(uint8 *opcodes, uint len) 
 {
-	struct env *env = malloc(sizeof(struct env));
+	struct regs_stack *rstack;
 
-	memset(env, 0, sizeof(struct env));
+	rstack = regs_stack_create();
 
-	return env;
+	while (opcodes[rstack->cur->r_ip] != 0) 
+	{
+		uint8 op = opcodes[rstack->cur->r_ip];
+		uint len = arglen(op);
+	} 
+
+	regs_stack_destroy(rstack);
 }
 
-struct env*
-env_copy(struct env *orig)
+
+struct regs*
+regs_create() 
 {
-	struct env *cpy = env_create();
-	memcpy(cpy, orig, sizeof(struct env));
+	struct regs *regs = malloc(sizeof(struct regs));
+
+	memset(regs, 0, sizeof(struct regs));
+
+	return regs;
+}
+
+struct regs*
+regs_copy(struct regs *orig)
+{
+	struct regs *cpy = regs_create();
+	memcpy(cpy, orig, sizeof(struct regs));
 
 	return cpy;
 }
 
 void
-env_destroy(struct env *env) 
+regs_destroy(struct regs *env) 
 {
 	free(env);
 }
 
 
+struct regs_stack*
+regs_stack_create() 
+{
+	struct regs_stack *stack;
+
+	stack = malloc(sizeof(struct regs_stack));
+	memset(stack, 0, sizeof(struct regs_stack));
+
+	stack->cur = regs_create();
+
+	return stack;
+}
 
 void 
-execute(uint8 *opcodes, uint len) 
+regs_stack_destroy(struct regs_stack *stack) 
 {
-	struct env *env;
+	if (stack->cur) {
+		regs_destroy(stack->cur);
+	}
 
-	env = env_create();
+	free(stack);
+}
 
-	while (opcodes[env->r_ip] != 0) 
-	{
-		uint8 op = opcodes[env->r_ip];
-		uint len = arglen(op);
-	} 
+struct regs_stack*
+regs_stack_push(struct regs_stack *stack)
+{
+	struct regs_stack *cpy;
 
-	env_destroy(env);
+	cpy = regs_stack_create();
+	cpy->prev = stack;
+
+	return cpy;
+}
+
+struct regs_stack*
+regs_stack_pop(struct regs_stack *stack) 
+{
+	struct regs_stack *prev = stack->prev;
+	regs_stack_destroy(stack);
+	return prev;
 }
 
 
@@ -63,13 +105,15 @@ arglen(uint8 op)
 			if (op & OP_MASK_MOV_32BIT) {
 				return 4;
 			}
-
 			return 1;
 		}
 	} else if (head == OP_HEAD_FUNC) {
 		return 0;
 	} else if (head == OP_HEAD_ARIT_CMP) {
-		return 4;
+		if (op & OP_MASK_ARIT_CMP_32BIT) {
+			return 4;
+		}
+		return 1;
 	}
 
 	return 0;
