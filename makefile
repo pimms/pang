@@ -1,5 +1,5 @@
 CC=gcc
-LIBS=
+LIBS=-Lpangvm -lpangvm
 INCS=
 FLG=
 OUTPUT=pang
@@ -9,12 +9,12 @@ OBJ=$(SRC:.c=.o)
 
 all:pang
 
-pang: $(OBJ)
+pang:pangVM $(OBJ)
 	@echo "LINK $(OUTPUT)"
 	@$(CC) $(FLG) -o $(OUTPUT) $(OBJ) $(INCS) $(LIBS)
 
-install: pang
-	@echo "TODO!"
+pangVM:
+	@cd pangvm && make
 
 %.o: %.c
 	@echo "CC   $<"
@@ -22,3 +22,4 @@ install: pang
 
 clean:
 	@rm -f $(OBJ) $(OUTPUT)
+	@cd pangvm && make clean

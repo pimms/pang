@@ -4,6 +4,10 @@
 #include "../pang.h"
 
 
+/* Returns the number of bytes in the operation's
+ * external argument. */
+uint arglen(uint8 op);
+
 
 struct regs 
 {	
@@ -42,9 +46,14 @@ void regs_stack_destroy(struct regs_stack *stack);
 struct regs_stack* regs_stack_push(struct regs_stack *stack);
 struct regs_stack* regs_stack_pop(struct regs_stack *stack);
 
-/* Returns the number of bytes in the operations
- * external argument. */
-uint arglen(uint8 op);
 
+
+struct env 
+{
+	struct regs_stack *stack;
+};
+
+struct env* env_create();
+void env_destroy(struct env *env);
 
 #endif /*__PANG_ENV_H__*/
