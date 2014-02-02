@@ -2,6 +2,12 @@
 #define __PANG_ENV_H__
 
 
+struct env 
+{
+	int ip;
+};
+
+
 /* Execute an array of opcodes 
  */
 void execute(void *opcodes, int len);
