@@ -24,7 +24,8 @@ required by the program.
 The stack is the area modified by the bytecode, and is 
 dynamically expanded by the interpreter as it's needed.
 Unlike the program segment, the stack segment has almost
-no limitations on what can / should be done with it. 
+no limitations on what can / should be done with it. The 
+stack in PangVM grows upwards, starting at address 0.
 
 
 2) 	BYTECODE
