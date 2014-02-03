@@ -10,15 +10,15 @@
  * 0xC 	ARIT_CMP
  */
 #define OP_MASK_HEAD 		0xC0
-#define OP_HEAD_STACKMEM 	0x0
-#define OP_HEAD_FUNC 		0x8
-#define OP_HEAD_ARIT_CMP 	0xC
+#define OP_HEAD_STACKMEM 	0x00
+#define OP_HEAD_FUNC 		0x80
+#define OP_HEAD_ARIT_CMP 	0xC0
 
 
 
 
 /* Stack and memory altering operations
- * Range: 0x10 - 0x3F
+ * Range: 0x00 - 0x3F
  *
  * The low order nibble defines how the external
  * argument should be treated. 
@@ -35,9 +35,14 @@
 // the external argument is 32 bit. Otherwise, it's 8.
 #define OP_MASK_MOV_32BIT  0x08
 
-#define OP_PUSH			0x10
-#define OP_POP 			0x20
-#define OP_MOV 			0x30
+// When moving data from the program (data) segment into a register,
+// the 32 bit external argument has it's HO bit flagged. 
+#define OP_MASK_MOV_EXTARG32_DATA 0x80000000
+
+#define OP_PUSH			0x00
+#define OP_POP 			0x10
+#define OP_MOV 			0x20
+#define OP_MOV_LTRL 	0x30 	// Move literal into register
 
 
 

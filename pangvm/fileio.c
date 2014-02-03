@@ -9,6 +9,7 @@ file_get_line(char *buf, int max, FILE *fp)
 		return -1;
 	}
 
+	*buf = 0;
 	fgets(buf, max, fp);
 	
 	if (strlen(buf) == 0) {
