@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#define PANG_FAILURE -1
+#define PANG_SUCCESS  0
+
 typedef uint8_t uint8;
 typedef uint32_t uint;
 
