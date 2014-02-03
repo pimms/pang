@@ -49,21 +49,21 @@ Each instruction can take a 0, 1 or 4 byte argument.
 STACKMEM instructions require a register argument. The
 register is encoded into the operation itself. 
 
-ARIT_CMP instructions use the low order bit to define
-whehter it's external argument is 32 or 8 bit. 
+ARIT_CMP instructions use the two low order bit to define
+whehter it's external argument is 32 or 8 bit, and what it means.
 
 2a)	Stack & memory instructions
 STACKMEM instructions are allocated the range 0x10 to
 0x7F. The low order nibble is used to define the register
 used by the instruction.
 
-OP_PUSH		0x10
+OP_PUSH		0x10		0 bytes
 	Push a register onto the stack.
 
-OP_POP		0x20
+OP_POP		0x20		0 bytes
 	Pop from the stack to a register.
 
-OP_MOV		0x30
+OP_MOV		0x30		1 or 4 bytes
 	The 4th bit in the LO nibble is 1 if the external
 	argument is 32 bit and references a memory address. 
 	It's 0 if the external arg is 8 bit and references 
@@ -102,4 +102,19 @@ OP_RET		0x81 		0 bytes
 	to the next instruction after the previous OP_CALL.
 
 2c)	Arithmetic & comparison instructions
-TODO!
+ARIT_CMP instructions are given the range C0 to FF. The 
+two lowest order bits define the context and length of the
+external argument. The external argument can reference either:
+ - A register 					8 bit
+ - A memory location (stack)  	32 bit
+ - A memory location (data)		32 bit
+ - A literal value 				32 bit
+
+All ARIT_CMP instructions operate on the value derived from
+the external argument and RA. The result of the operation is 
+stored in the result register for comparions and RA for arithmetic
+operations.
+
+The following pseudo-code will result in RA holding the value 10.
+	mov ra, 5 	; Move 5 to RA
+	add $5 		; Add 5 to RA, store result in RA
