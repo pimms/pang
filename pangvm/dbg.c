@@ -21,6 +21,7 @@ get_op_info(uint8 op, uint8 full)
 		case OP_PUSH:  	return get_op_push_info(full);
 		case OP_POP:  	return get_op_pop_info(full);
 		case OP_MOV:  	return get_op_mov_info(full);
+		case OP_MOV_LTRL: return "OP_MOV_LTRL";
 
 		case OP_CALL:  	return "OP_CALL";
 		case OP_RET:  	return "OP_RET";
@@ -63,7 +64,7 @@ get_reg_name(uint8 reg)
 static char*
 get_op_push_info(uint8 op)
 {	
-	op &= MASK_REG;
+	op &= OP_MASK_STACKMEM_REG;
 	sprintf(gstr, "OP_PUSH (%s)", get_reg_name(op));
 	return gstr;
 }
@@ -71,7 +72,7 @@ get_op_push_info(uint8 op)
 static char*
 get_op_pop_info(uint8 op)
 {	
-	op &= MASK_REG;
+	op &= OP_MASK_STACKMEM_REG;
 	sprintf(gstr, "OP_POP (%s)", get_reg_name(op));
 	return gstr;
 }
@@ -79,7 +80,7 @@ get_op_pop_info(uint8 op)
 static char*
 get_op_mov_info(uint8 op)
 {
-	uint8 reg = op & MASK_REG;
+	uint8 reg = op & OP_MASK_STACKMEM_REG;
 	uint8 toreg = op & OP_MASK_MOV_TO_REG;
 	uint8 bit32 = op & OP_MASK_MOV_TO_REG;
 

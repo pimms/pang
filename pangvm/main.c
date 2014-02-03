@@ -17,18 +17,20 @@ void
 hex_dump(uint8 *opcode, uint len) 
 {
 	for (int i=0; i<len; i++) {
-		printf("%X", opcode[i]);
+		printf("%s%X", opcode[i]<0x10?"0":"", opcode[i]);
 
-		if (i%4 == 0 && i) {
+		if (i%4 == 3 && i) {
 			printf("\t");
 		} else {
 			printf(" ");
 		}
 
-		if (i%8 == 0 && i) {
+		if (i%8 == 7 && i) {
 			printf("\n");
 		}
 	}
+
+	printf("\n");
 }
 
 int 
@@ -63,7 +65,7 @@ main(int argc, char *argv[])
 
 	hex_dump(opcode, len);
 
-	//execute(opcode, len);
+	execute(opcode, len);
 	
 	return 0;
 }

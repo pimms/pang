@@ -35,11 +35,11 @@ panglog(unsigned int level, const char *msg)
 			break;
 		case LOG_DEBUG:
 			color = COLOR_BLUE;
-			lvl = "DEBUG";
+			lvl = "DEBUG   ";
 			break;
 		case LOG_VERBOSE:
 			color = COLOR_GREEN;
-			lvl = "VERBOSE";
+			lvl = "VERBOSE ";
 			break;
 	}
 

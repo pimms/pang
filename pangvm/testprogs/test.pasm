@@ -1,8 +1,21 @@
-	; Calculate 5x6
-	mov 	ra $5
-	mov 	rb $6
-	;mul 	rb
+	; Move 16 to RA
+	mov		ra 	$16
 
-	; Calculate 10x10
-	;mov 	ra $10
-	
+	; Move 16 ro RB
+	mov 	rb  ra
+
+	; Push RB 
+	push	rb
+
+	; Assign 42 to RB
+	mov 	rb  $42
+
+	; Move 42 to RA
+	mov 	ra rb
+
+	; Pop 16 back into RB
+	pop		rb
+
+	; Move 0 to RA and RB
+	mov		ra $0
+	mov		rb $0

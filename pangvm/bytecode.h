@@ -39,6 +39,9 @@
 // the 32 bit external argument has it's HO bit flagged. 
 #define OP_MASK_MOV_EXTARG32_DATA 0x80000000
 
+// The two low order bits are used to define the register
+#define OP_MASK_STACKMEM_REG 0x03
+
 #define OP_PUSH			0x00
 #define OP_POP 			0x10
 #define OP_MOV 			0x20
@@ -104,7 +107,6 @@
  * an operation, or stand by themselves in an 8 bit
  * external argument. Regardless, the same values are used.
  */
-#define MASK_REG 		0x07
 #define REG_A 			0x00
 #define REG_B 			0x01
 #define REG_C 			0x02

@@ -73,7 +73,7 @@ pasm_get_arg_count(uint8 op)
 	if (head == OP_HEAD_STACKMEM) {
 		switch (body) {
 			case OP_MOV:	return 2;
-			default: 		return 0;
+			default: 		return 1;
 		}
 	} else if (head == OP_HEAD_FUNC) {
 		switch (body) {
@@ -177,7 +177,6 @@ pasm_translate_pasm_line(struct pasm_line *pline)
 	uint num_args;
 
 	uint8 opcode = pasm_get_op(pline->instr);
-	if (!opcode) return NULL;
 
 	instr = malloc(sizeof(struct pasm_instr));
 	instr->next = NULL;
@@ -254,7 +253,7 @@ pasm_translate_stackmem_mov(struct pasm_line *pline,
 	instr->oper |= pasm_get_reg_alias(reg);
 
 	// If "reg" is the destination, flag the "mov_to_reg" bit 
-	if (reg == pline->arg1) {
+	if (reg == pline->arg0) {
 		instr->oper |= OP_MASK_MOV_TO_REG;
 	}
 
@@ -271,8 +270,7 @@ pasm_translate_stackmem_mov(struct pasm_line *pline,
 		instr->arg32 = pasm_get_memory_addr(arg) | OP_MASK_MOV_EXTARG32_DATA;
 	} else if (argt == PASM_ARG_LITERAL) {
 		instr->arglen = 4;
-		// retain existing flags
-		instr->oper = OP_MOV_LTRL | (instr->oper & 0x0F);
+		instr->oper = OP_MOV_LTRL | (instr->oper & OP_MASK_STACKMEM_REG);
 		instr->arg32 = pasm_get_literal(arg);
 	} 
 }
@@ -370,7 +368,7 @@ pasm_join_instr(struct pasm_instr *first, uint *len)
 	uint8 *opcode = NULL;
 
 	// Calculate the required number of bytes
-	*len = 0;
+	*len = 4;
 	while (it) {
 		*len += 1 + it->arglen;
 		it = it->next;
@@ -378,8 +376,10 @@ pasm_join_instr(struct pasm_instr *first, uint *len)
 
 	// Store the instructions in the program area
 	opcode = malloc(*len);
+	memset(opcode, 0, *len);
+	*(int*)opcode = 4; 	// Start execution at byte no. 5
 	it = first;
-	uint i = 0;
+	uint i = 4;
 
 	while (it) {
 		opcode[i++] = it->oper;
@@ -416,6 +416,10 @@ pasm_compile(const char *file, uint *opcodelen)
 
 	while (file_get_line(buf, 80, fp) == 0) {
 		char *line = pasm_clean_line(buf);
+		if (strlen(line) == 0) {
+			continue;
+		}
+
 		struct pasm_instr *instr = pasm_translate_line(line);
 
 		if (instr) {
@@ -427,11 +431,14 @@ pasm_compile(const char *file, uint *opcodelen)
 			}
 		} else {
 			if (g_comp_error) {
-				char err[256];
-				sprintf(err, "Error at line %u: %s", 
-						line_no, g_comp_error);
+				char err[128];
+				sprintf(err, "Error at line %u: %s", line_no, g_comp_error);
 				panglog(LOG_CRITICAL, err);
 				return NULL;
+			} else {
+				char err[32];
+				sprintf(err, "Unkown error at line %d", line_no);
+				panglog(LOG_CRITICAL, err);
 			}
 		}
 
@@ -439,7 +446,7 @@ pasm_compile(const char *file, uint *opcodelen)
 	}
 
 	uint8 *opcode;
-	pasm_join_instr(head, opcodelen);
+	opcode = pasm_join_instr(head, opcodelen);
 	panglog(LOG_VERBOSE, "Compilation complete");
 
 	return opcode;

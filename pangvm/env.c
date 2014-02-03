@@ -29,6 +29,8 @@ arglen(uint8 op)
 				return 4;
 			}
 			return 1;
+		} else if ((op & OP_MASK_STACKMEM) == OP_MOV_LTRL) {
+			return 4;
 		}
 	} else if (head == OP_HEAD_FUNC) {
 		return 0;
@@ -101,6 +103,7 @@ execute_op(struct env *env, const uint8 *ops)
 		case OP_PUSH:	op_push(env, op, exarg);	break;
 		case OP_POP:	op_pop(env, op, exarg); 	break;
 		case OP_MOV:	op_mov(env, op, exarg);		break;
+		case OP_MOV_LTRL: op_mov_l(env, op, exarg);	break;
 
 		case OP_CALL:	op_call(env, op, exarg);	break;
 		case OP_RET:	op_ret(env, op, exarg);		break;
@@ -132,8 +135,6 @@ regs_create()
 	struct regs *regs = malloc(sizeof(struct regs));
 
 	memset(regs, 0, sizeof(struct regs));
-
-	regs->r_a = 13;
 
 	return regs;
 }
@@ -231,7 +232,7 @@ env_get_int(struct env *env, uint addr)
 	}
 
 	char str[128];
-	sprintf(str, "Attempting to read addres %u", addr);
+	sprintf(str, "Attempting to read address %u", addr);
 	panglog(LOG_CRITICAL, str);
 
 	return NULL;
@@ -248,19 +249,19 @@ env_get_int(struct env *env, uint addr)
  */
 FUNC_OPCODE(op_push) 
 {
-	int value = *env_get_reg(env, op & MASK_REG);
+	int value = *env_get_reg(env, op & OP_MASK_STACKMEM_REG);
 
 	// Grow the stack by 4
 	env_increase_sp(env, sizeof(int));
 
-	// Get the pointer to the previous SP location
+	// Get the pointer to the highest DWord
 	int *ptr = env_get_int(env, env->reg->r_sp - sizeof(int));
 	*ptr = value;
 }
 
 FUNC_OPCODE(op_pop) 
 {
-	int *reg = env_get_reg(env, op & MASK_REG);
+	int *reg = env_get_reg(env, op & OP_MASK_STACKMEM_REG);
 
 	// Get the address of the int at the top of the stack
 	env->reg->r_sp -= sizeof(int);
@@ -274,7 +275,7 @@ FUNC_OPCODE(op_mov)
 	int *reg;	// Internal register arg
 	int *ext;	// External arg
 
-	reg = env_get_reg(env, op & MASK_REG);
+	reg = env_get_reg(env, op & OP_MASK_STACKMEM_REG);
 
 	if (op & OP_MASK_MOV_32BIT) {
 		int arg = *(int*)exarg;
@@ -289,6 +290,16 @@ FUNC_OPCODE(op_mov)
 	} else {
 		*ext = *reg;
 	}
+}
+
+FUNC_OPCODE(op_mov_l)
+{
+	int *reg;
+	int val = *(int*)exarg;
+
+	reg = env_get_reg(env, op & OP_MASK_STACKMEM_REG);
+
+	*reg = val;
 }
 
 

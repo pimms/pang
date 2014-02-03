@@ -31,9 +31,6 @@ struct pasm_instr
 	uint arglen;
 };
 
-// Join a set of instructions
-uint8* pasm_join_instr(struct pasm_instr *first, uint *len);
-
 // Get the naked bytecode from the instruction
 uint8 pasm_get_op(const char *instr);
 uint pasm_get_arg_count(uint8 op);
@@ -55,6 +52,9 @@ struct pasm_instr* pasm_translate_line(char *line);
 // Remove comments and padding whitespace. All whitespace is 
 // converted to " " (spaces).
 char* pasm_clean_line(char *str);
+
+// Join a set of instructions
+uint8* pasm_join_instr(struct pasm_instr *first, uint *len);
 
 uint8* pasm_compile(const char *file, uint *opcodelen);
 

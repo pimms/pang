@@ -80,6 +80,7 @@ int* env_get_int(struct env *env, uint addr);
 FUNC_OPCODE(op_push);
 FUNC_OPCODE(op_pop);
 FUNC_OPCODE(op_mov);
+FUNC_OPCODE(op_mov_l);
 
 FUNC_OPCODE(op_call);
 FUNC_OPCODE(op_ret);
