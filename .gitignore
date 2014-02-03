@@ -17,4 +17,4 @@
 *.out
 *.app
 pang
-pangvm
+pangvm/pangvm
