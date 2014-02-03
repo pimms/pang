@@ -18,7 +18,7 @@
 
 
 /* Stack and memory altering operations
- * Range: 0x10 - 0x2F
+ * Range: 0x10 - 0x3F
  *
  * The low order nibble defines how the external
  * argument should be treated. 
@@ -104,7 +104,7 @@
 #define REG_B 			0x01
 #define REG_C 			0x02
 #define REG_D 			0x03
-
+#define REG_IP 			0x04
 #define REG_SP 			0x05
 #define REG_BP 			0x06
 
