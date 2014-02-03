@@ -17,7 +17,7 @@ set_log_level(unsigned int level)
 }
 
 void 
-panglog(unsigned int level, char *msg) 
+panglog(unsigned int level, const char *msg) 
 {
 	if (level > g_log_level) {
 		return;

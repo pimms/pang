@@ -9,7 +9,7 @@
 
 void set_log_level(unsigned int level);
 
-void panglog(unsigned int level, char *msg);
+void panglog(unsigned int level, const char *msg);
 
 
 
