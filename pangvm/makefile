@@ -1,17 +1,24 @@
 INC =
 LIBS=
-FLG =
+FLG = -g
 
 CC = gcc
 
-TARGET_NAME = libpangvm.a
+LIBOUT=libpangvm.a
+OUT = pangvm
 
-SRC = $(shell find -name '*.c' -print)
+SRC = $(shell find -name '*.c' -print | grep -v "main.c")
 OBJ = $(subst .c,.o,$(SRC))
 
-all: $(OBJ)
-	@echo "LINK $(TARGET_NAME)"
-	@ar rvs $(TARGET_NAME) $(OBJ) >/dev/null
+all:$(LIBOUT) $(OUT)
+
+$(LIBOUT): $(OBJ)
+	@echo "LINK $(LIBOUT)"
+	@ar rvs $(LIBOUT) $(OBJ) >/dev/null
+
+$(OUT): $(OBJ) main.o
+	@echo "LINK $(OUT)"
+	@$(CC) $(FLG) -o $(OUT) $(OBJ) main.o $(INC) $(LIBS)
 
 %.o: %.c
 	@echo "CC   $<"

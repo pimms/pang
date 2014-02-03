@@ -1,7 +1,7 @@
 #ifndef __PANG_ENV_H__
 #define __PANG_ENV_H__
 
-#include "../pang.h"
+#include "pangvm.h"
 
 
 /* Returns the number of bytes in the operation's
@@ -43,7 +43,7 @@ void regs_destroy(struct regs* regs);
 
 
 
-const int g_memory_initial_size = 1024;
+#define MEMORY_INITIAL_SIZE 1024
 struct memory
 {
 	void *data;
@@ -89,8 +89,6 @@ FUNC_OPCODE(op_sub);
 FUNC_OPCODE(op_mul);
 FUNC_OPCODE(op_div);
 FUNC_OPCODE(op_mod);
-FUNC_OPCODE(op_ls);
-FUNC_OPCODE(op_rs);
 
 FUNC_OPCODE(op_xor);
 FUNC_OPCODE(op_and);

@@ -64,28 +64,34 @@
  * argument is an 8-bit value containing a register 
  * reference, or 0 if it is a 32-bit address reference.
  */
-#define OP_MASK_ARIT_CMP 0xFE
-#define OP_MASK_ARIT_CMP_32BIT 0x01
+#define OP_MASK_ARIT_CMP 0xFC
 
-#define OP_ADD 			0xC2
+// op & OP_MASK_ARIT_CMP_ARG can have four
+// different values, defining the context of the external
+// argument.
+#define OP_MASK_ARIT_CMP_ARG 	0x03
+#define OP_ARG_ARIT_CMP_REG 	0x00 	// An 8 bit register ref.
+#define OP_ARG_ARIT_CMP_MEM 	0x01	// A 32 bit memory ptr
+#define OP_ARG_ARIT_CMP_DATA 	0x02	// A 32 bit data ptr
+#define OP_ARG_ARIT_CMP_LITERAL	0x03	// A 32 bit literal
+
+#define OP_ADD 			0xC0
 #define OP_SUB 			0xC4
-#define OP_MUL 			0xC6
-#define OP_DIV 			0xC8
-#define OP_MOD 			0xCA
-#define OP_LS 			0xCC
-#define OP_RS 			0xCE
+#define OP_MUL 			0xC8
+#define OP_DIV 			0xCC
+#define OP_MOD 			0xD0
 
-#define OP_XOR			0xD2
-#define OP_AND			0xD4
-#define OP_CMP			0xD6
+#define OP_XOR			0xD4
+#define OP_AND			0xD8
+#define OP_CMP			0xDC
 
-#define OP_JMP 			0xF2
-#define OP_JE 			0xF4
-#define OP_JNE			0xF6
-#define OP_JL 			0xF8
-#define OP_JLE 			0xFA
-#define OP_JG 			0xFC
-#define OP_JGE 			0xFE
+#define OP_JMP 			0xE0
+#define OP_JE 			0xE4
+#define OP_JNE			0xE8
+#define OP_JL 			0xEC
+#define OP_JLE 			0xF0
+#define OP_JG 			0xF4
+#define OP_JGE 			0xF8
 
 
 
@@ -99,8 +105,8 @@
 #define REG_C 			0x02
 #define REG_D 			0x03
 
-#define REG_SP 			0x06
-#define REG_BP 			0x07
+#define REG_SP 			0x05
+#define REG_BP 			0x06
 
 /* The literal results of a comparison.
  */

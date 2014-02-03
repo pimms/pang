@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-unsigned int g_log_level = LOG_CRITICAL;
+static unsigned int g_log_level = LOG_VERBOSE;
 
 void
 set_log_level(unsigned int level) 
@@ -43,7 +43,7 @@ panglog(unsigned int level, char *msg)
 			break;
 	}
 
-	sprintf(lstr, "[%s%s%s] %s", color, lvl, COLOR_DEFAULT, msg);
+	sprintf(lstr, "[%s%s%s] %s\n", color, lvl, COLOR_DEFAULT, msg);
 
 	if (level == LOG_CRITICAL) {
 		fputs(lstr, stderr);

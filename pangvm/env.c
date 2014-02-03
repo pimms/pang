@@ -1,6 +1,7 @@
 #include "env.h"
 #include "bytecode.h"
 #include "log.h"
+#include "dbg.h"
 
 #include <malloc.h>
 #include <string.h>
@@ -15,6 +16,8 @@ uint
 arglen(uint8 op) 
 {
 	uint8 head = op & OP_MASK_HEAD;
+	uint8 body, arg;
+	opcode_split(op, &body, &arg);
 
 	if (head == OP_HEAD_STACKMEM) {
 		if ((op & OP_MASK_STACKMEM) == OP_PUSH) {
@@ -30,10 +33,10 @@ arglen(uint8 op)
 	} else if (head == OP_HEAD_FUNC) {
 		return 0;
 	} else if (head == OP_HEAD_ARIT_CMP) {
-		if (op & OP_MASK_ARIT_CMP_32BIT) {
-			return 4;
+		if (arg == OP_ARG_ARIT_CMP_REG) {
+			return 1;
 		}
-		return 1;
+		return 4;
 	}
 
 	return 0;
@@ -52,7 +55,7 @@ opcode_split(uint8 op, uint8 *body, uint8 *arg)
 		*arg = 0;
 	} else if (head == OP_HEAD_ARIT_CMP) {
 		*body = op & OP_MASK_ARIT_CMP;
-		*arg = op & OP_MASK_ARIT_CMP_32BIT;
+		*arg = op & OP_MASK_ARIT_CMP_ARG;
 	} else {
 		return -1;
 	}
@@ -65,6 +68,9 @@ void
 execute(const uint8 *opcodes, uint len) 
 {
 	struct env *env = env_create();
+	env->reg->r_ip = *(uint*)opcodes;
+
+	printf("Starting at byte %u\n", env->reg->r_ip);
 
 	while (env->reg->r_ip < len) {
 		execute_op(env, opcodes);
@@ -76,6 +82,9 @@ execute(const uint8 *opcodes, uint len)
 static void
 execute_op(struct env *env, const uint8 *ops)
 {
+	dbg_registers(env->reg);
+	dbg_opcode(ops, env->reg->r_ip);
+
 	uint8 op;
 	uint8 body;
 	uint8 arg;
@@ -101,8 +110,6 @@ execute_op(struct env *env, const uint8 *ops)
 		case OP_MUL:	op_mul(env, op, exarg);		break;
 		case OP_DIV:	op_div(env, op, exarg);		break;
 		case OP_MOD:	op_mod(env, op, exarg);		break;
-		case OP_LS:		op_ls(env, op, exarg);		break;
-		case OP_RS:		op_rs(env, op, exarg);		break;
 
 		case OP_XOR:	op_xor(env, op, exarg);		break;
 		case OP_AND:	op_and(env, op, exarg);		break;
@@ -126,6 +133,8 @@ regs_create()
 
 	memset(regs, 0, sizeof(struct regs));
 
+	regs->r_a = 13;
+
 	return regs;
 }
 
@@ -143,7 +152,7 @@ memory_create()
 	struct memory *memory;
 	memory = malloc(sizeof(struct memory));
 
-	memory->len = g_memory_initial_size;
+	memory->len = MEMORY_INITIAL_SIZE;
 	memory->data = malloc(memory->len);
 
 	return memory;
@@ -254,8 +263,8 @@ FUNC_OPCODE(op_pop)
 	int *reg = env_get_reg(env, op & MASK_REG);
 
 	// Get the address of the int at the top of the stack
+	env->reg->r_sp -= sizeof(int);
 	int *stack = env_get_int(env, env->reg->r_sp);
-	stack -= sizeof(int);
 
 	*reg = *stack;
 }
@@ -264,11 +273,14 @@ FUNC_OPCODE(op_mov)
 {
 	int *reg;	// Internal register arg
 	int *ext;	// External arg
-	int arg = *(int*)exarg;
+
+	reg = env_get_reg(env, op & MASK_REG);
 
 	if (op & OP_MASK_MOV_32BIT) {
+		int arg = *(int*)exarg;
 		ext = env_get_int(env, arg);
 	} else {
+		uint8 arg = ((uint8*)exarg)[0];
 		ext = env_get_reg(env, arg);
 	}
 
@@ -312,16 +324,6 @@ FUNC_OPCODE(op_div)
 }
 
 FUNC_OPCODE(op_mod) 
-{
-
-}
-
-FUNC_OPCODE(op_ls) 
-{
-
-}
-
-FUNC_OPCODE(op_rs) 
 {
 
 }
