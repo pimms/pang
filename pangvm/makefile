@@ -1,6 +1,6 @@
 INC =
 LIBS=
-FLG = -g
+FLG = -g -std=c99
 
 CC = gcc
 
