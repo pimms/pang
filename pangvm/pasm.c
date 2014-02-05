@@ -199,7 +199,7 @@ pasm_translate_pasm_line(struct pasm_line *pline)
 	if (strlen(pline->arg0)) num_args++;
 	if (strlen(pline->arg1)) num_args++;
 	if (num_args != pasm_get_arg_count(instr->oper)) {
-		panglog(LOG_CRITICAL, "Invalid number of arguments");
+		pasm_error(9, "Invalid number of arguments");
 		free(instr);
 		return NULL;
 	}
@@ -301,7 +301,44 @@ void
 pasm_translate_aritcmp(struct pasm_line *pline, 
 					   struct pasm_instr *instr) 
 {
-	pasm_error(999, "arit_cmp not yet supported");
+	// Exactly one argument is expected for all arit_cmp 
+	// instructions. 
+	if (!strlen(pline->arg0) || strlen(pline->arg1)) {
+		pasm_error(9, "Invalid number of arguments");
+	}
+
+	instr->oper = pasm_get_op(pline->instr);
+
+	// Currently, all types of arguments are allowed in
+	// arit_cmp instructions.
+	uint atype = pasm_get_arg_type(pline->arg0);
+	if (atype == PASM_ARG_UNDEFINED) {
+		pasm_error(1, "Invalid argument");
+	}
+
+	// Encode the argument type into the instruction
+	switch (atype) {
+		case PASM_ARG_REGISTER:	
+			instr->oper |= OP_ARG_ARIT_CMP_REG;
+			instr->arglen = 1;
+			instr->arg8 = pasm_get_reg_alias(pline->arg0);
+			break;
+		case PASM_ARG_MEMORY:
+			instr->oper |= OP_ARG_ARIT_CMP_MEM;
+			instr->arglen = 4;
+			instr->arg32 = pasm_get_memory_addr(pline->arg0);
+			break;
+		case PASM_ARG_DATA:
+			instr->oper |= OP_ARG_ARIT_CMP_DATA;
+			instr->arglen = 4;
+			instr->arg32 = pasm_get_memory_addr(pline->arg0);
+			break;
+		case PASM_ARG_LITERAL:
+			instr->oper |= OP_ARG_ARIT_CMP_LITERAL;
+			instr->arglen = 4;
+			instr->arg32 = pasm_get_literal(pline->arg0);
+			break;
+	}
 }
 
 
