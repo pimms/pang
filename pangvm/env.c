@@ -132,7 +132,7 @@ execute_op(struct env *env, const uint8 *ops)
 struct regs*
 regs_create() 
 {
-	struct regs *regs = malloc(sizeof(struct regs));
+	struct regs *regs = (struct regs*)malloc(sizeof(struct regs));
 
 	memset(regs, 0, sizeof(struct regs));
 
@@ -151,7 +151,7 @@ struct memory*
 memory_create()
 {
 	struct memory *memory;
-	memory = malloc(sizeof(struct memory));
+	memory = (struct memory*)malloc(sizeof(struct memory));
 
 	memory->len = MEMORY_INITIAL_SIZE;
 	memory->data = malloc(memory->len);
@@ -180,7 +180,7 @@ env_create()
 {
 	struct env *env;
 
-	env = malloc(sizeof(struct env));
+	env = (struct env*)malloc(sizeof(struct env));
 	memset(env, 0, sizeof(struct env));
 
 	env->reg = regs_create();
@@ -228,7 +228,7 @@ int*
 env_get_int(struct env *env, uint addr)
 {
 	if (env->mem->len + 4 > addr) {
-		return env->mem->data + addr;
+		return (int*)env->mem->data + addr;
 	}
 
 	char str[128];

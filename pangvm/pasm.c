@@ -291,7 +291,7 @@ void
 pasm_translate_aritcmp(struct pasm_line *pline, 
 					   struct pasm_instr *instr) 
 {
-	g_comp_error = "arit_cmp not yet supported";
+	g_comp_error = "NIH!";
 }
 
 

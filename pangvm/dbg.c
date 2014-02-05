@@ -13,11 +13,10 @@ static char* get_op_push_info(uint8);
 static char* get_op_pop_info(uint8);
 static char* get_op_mov_info(uint8);
 
-static char*
+static const char*
 get_op_info(uint8 op, uint8 full)
 {
-	switch (op) 
-	{
+	switch (op) {
 		case OP_PUSH:  	return get_op_push_info(full);
 		case OP_POP:  	return get_op_pop_info(full);
 		case OP_MOV:  	return get_op_mov_info(full);
@@ -45,7 +44,7 @@ get_op_info(uint8 op, uint8 full)
 	return "??";
 }
 
-static char*
+static const char*
 get_reg_name(uint8 reg) 
 {
 	switch (reg)
@@ -94,7 +93,6 @@ void
 dbg_opcode(const uint8 *ops, uint idx)
 {
 	uint8 op = ops[idx];
-	uint len = arglen(op);
 
 	uint8 body, arg;
 	opcode_split(op, &body, &arg);
