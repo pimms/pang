@@ -25,4 +25,4 @@ $(OUT): $(OBJ) main.o
 	@$(CC) $(FLG) -o $@ -c $< $(INC) $(LIBS)
 
 clean:
-	@rm -rf $(OBJ) $(TARGET_NAME)
+	@rm -rf $(OBJ) main.o  $(TARGET_NAME)

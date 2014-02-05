@@ -4,7 +4,7 @@ INCS=
 FLG=
 OUTPUT=pang
 
-SRC=$(shell find . | grep -v "\.git" | grep "\.c")
+SRC=$(shell find . | grep -v "^\.git/\|^\./pangvm/" | grep "\.c")
 OBJ=$(SRC:.c=.o)
 
 all:pang
