@@ -72,12 +72,12 @@
  * argument is an 8-bit value containing a register 
  * reference, or 0 if it is a 32-bit address reference.
  */
-#define OP_MASK_ARIT_CMP 0xFC
+#define OP_MASK_ARIT_CMP 		0xFC
+#define OP_MASK_ARIT_CMP_ARG 	0x03
 
 // op & OP_MASK_ARIT_CMP_ARG can have four
 // different values, defining the context of the external
 // argument.
-#define OP_MASK_ARIT_CMP_ARG 	0x03
 #define OP_ARG_ARIT_CMP_REG 	0x00 	// An 8 bit register ref.
 #define OP_ARG_ARIT_CMP_MEM 	0x01	// A 32 bit memory ptr
 #define OP_ARG_ARIT_CMP_DATA 	0x02	// A 32 bit data ptr

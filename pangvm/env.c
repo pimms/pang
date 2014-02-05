@@ -314,40 +314,92 @@ FUNC_OPCODE(op_ret)
 }
 
 
+const int*
+arit_cmp_get_ext(struct env *env, uint8 argtype, const void *arg)
+{
+	if (argtype == OP_ARG_ARIT_CMP_REG) {
+		return env_get_reg(env, *(uint8*)arg);
+	}
+
+	if (argtype == OP_ARG_ARIT_CMP_MEM) {
+		return env_get_int(env, *(int*)arg);
+	}
+
+	if (argtype == OP_ARG_ARIT_CMP_LITERAL) {
+		return (int*)arg;
+	}
+
+	if (argtype == OP_ARG_ARIT_CMP_DATA) {
+		/* TODO */
+	}
+
+	panglog(LOG_CRITICAL,	"Unable to resolve argument type "
+							"for arit_cmp instruction");
+	return NULL;
+}
+
 FUNC_OPCODE(op_add) 
 {
-	
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a += *ext;
+	}
 }
 
 FUNC_OPCODE(op_sub) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a -= *ext;
+	}
 }
 
 FUNC_OPCODE(op_mul) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a *= *ext;
+	}
 }
 
 FUNC_OPCODE(op_div) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a /= *ext;
+	}
 }
 
 FUNC_OPCODE(op_mod) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a %= *ext;
+	}
 }
 
 
 FUNC_OPCODE(op_xor) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a ^= *ext;
+	}
 }
 
 FUNC_OPCODE(op_and) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_a &= *ext;
+	}
 }
 
 FUNC_OPCODE(op_cmp) 

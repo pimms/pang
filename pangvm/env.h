@@ -85,6 +85,7 @@ FUNC_OPCODE(op_mov_l);
 FUNC_OPCODE(op_call);
 FUNC_OPCODE(op_ret);
 
+const int* arit_cmp_get_ext(struct env*, uint8, const void*);;
 FUNC_OPCODE(op_add);
 FUNC_OPCODE(op_sub);
 FUNC_OPCODE(op_mul);
