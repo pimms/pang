@@ -9,6 +9,8 @@
 #include <stdlib.h>
 
 
+// Upon error, set "error" to a non-zero value
+// and put the error message in "emsg".
 static struct {
 	uint error;
 	char emsg[256];
