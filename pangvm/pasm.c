@@ -201,6 +201,7 @@ pasm_translate_pasm_line(struct pasm_line *pline)
 	} else if (head == OP_HEAD_ARIT_CMP) {
 		pasm_translate_aritcmp(pline, instr);
 	} else {
+		free(instr);
 		return NULL;
 	}
 
