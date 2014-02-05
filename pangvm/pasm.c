@@ -103,6 +103,8 @@ pasm_get_arg_type(char *arg)
 		return PASM_ARG_REGISTER;
 	}
 
+	// Numerical literals are only available in 
+	// base 10, and are prefixed with '$'
 	if (arg[0] == '$' && strlen(arg) > 1) {
 		for (int i=1; i<strlen(arg); i++) {
 			if (arg[i] < '0' || arg[i] > '9') {
@@ -174,7 +176,7 @@ struct pasm_instr*
 pasm_translate_pasm_line(struct pasm_line *pline)
 {
 	struct pasm_instr *instr;
-	uint num_args;
+	uint num_args = 0;
 
 	uint8 opcode = pasm_get_op(pline->instr);
 
@@ -186,6 +188,7 @@ pasm_translate_pasm_line(struct pasm_line *pline)
 	if (strlen(pline->arg1)) num_args++;
 	if (num_args != pasm_get_arg_count(instr->oper)) {
 		panglog(LOG_CRITICAL, "Invalid number of arguments");
+		free(instr);
 		return NULL;
 	}
 
@@ -257,7 +260,8 @@ pasm_translate_stackmem_mov(struct pasm_line *pline,
 		instr->oper |= OP_MASK_MOV_TO_REG;
 	}
 
-	// Encode the external argument and the opcode if nessecary
+	// Encode the external argument and the opcode if nessecary.
+	// We know at this point that both args are valid.
 	uint8 argt = pasm_get_arg_type(arg);
 	if (argt == PASM_ARG_REGISTER) {
 		instr->arglen = 1;
@@ -280,7 +284,6 @@ pasm_translate_function(struct pasm_line *pline,
 						struct pasm_instr *instr) 
 {
 	g_comp_error = "function not yet supported";
-	instr = NULL;	
 }
 
 void
@@ -288,7 +291,6 @@ pasm_translate_aritcmp(struct pasm_line *pline,
 					   struct pasm_instr *instr) 
 {
 	g_comp_error = "arit_cmp not yet supported";
-	instr = NULL;
 }
 
 
