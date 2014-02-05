@@ -9,9 +9,20 @@
 #include <stdlib.h>
 
 
+static struct {
+	uint error;
+	char emsg[256];
+} compile_status;
 
-char *g_comp_error;
-char g_buf[256];
+void
+pasm_error(uint err, const char *msg) 
+{
+	compile_status.error = err;
+	if (msg) {
+		strcpy(compile_status.emsg, msg);
+	}
+}
+
 
 uint8
 pasm_get_op(const char *instr) 
@@ -57,8 +68,9 @@ pasm_get_op(const char *instr)
 	if (!strcmp(instr, "jge"))
 		return OP_JGE;
 
-	sprintf(g_buf, "Unkown instruction: %s", instr);
-	g_comp_error = g_buf;
+
+	sprintf(compile_status.emsg, "Unkown instruction: %s", instr);
+	pasm_error(1, NULL);
 
 	return 0;
 }
@@ -180,7 +192,7 @@ pasm_translate_pasm_line(struct pasm_line *pline)
 
 	uint8 opcode = pasm_get_op(pline->instr);
 
-	instr = malloc(sizeof(struct pasm_instr));
+	instr = (struct pasm_instr*)malloc(sizeof(struct pasm_instr));
 	instr->next = NULL;
 	instr->oper = opcode;
 
@@ -220,8 +232,7 @@ pasm_translate_stackmem(struct pasm_line *pline,
 	// Pushing and popping an only be done to and from registers
 	uint type = pasm_get_arg_type(pline->arg0);
 	if (type != PASM_ARG_REGISTER) {
-		g_comp_error = "Argument is not a register";
-		instr = NULL; 
+		pasm_error(2, "Argument is not a register");
 		return;
 	} 
 
@@ -239,13 +250,12 @@ pasm_translate_stackmem_mov(struct pasm_line *pline,
 	at1 = pasm_get_arg_type(pline->arg1);
 
 	if (at0 == PASM_ARG_UNDEFINED || at1 == PASM_ARG_UNDEFINED) {
-		g_comp_error = "Invalid argument";
-		instr = NULL;
+		pasm_error(3, "Invalid argument");
 		return;
 	}
 
 	if (at0 != PASM_ARG_REGISTER && at1 != PASM_ARG_REGISTER) {
-		g_comp_error = "One operand in MOV must be a register";
+		pasm_error(4, "One operand in MOV must be a register");
 		instr = NULL;
 		return;
 	}
@@ -284,14 +294,14 @@ void
 pasm_translate_function(struct pasm_line *pline, 
 						struct pasm_instr *instr) 
 {
-	g_comp_error = "function not yet supported";
+	pasm_error(999, "function not yet supported");
 }
 
 void
 pasm_translate_aritcmp(struct pasm_line *pline, 
 					   struct pasm_instr *instr) 
 {
-	g_comp_error = "NIH!";
+	pasm_error(999, "arit_cmp not yet supported");
 }
 
 
@@ -378,7 +388,7 @@ pasm_join_instr(struct pasm_instr *first, uint *len)
 	}
 
 	// Store the instructions in the program area
-	opcode = malloc(*len);
+	opcode = (uint8*)malloc(*len);
 	memset(opcode, 0, *len);
 	*(int*)opcode = 4; 	// Start execution at byte no. 5
 	it = first;
@@ -408,6 +418,7 @@ pasm_compile(const char *file, uint *opcodelen)
 	struct pasm_instr *head = NULL;
 	struct pasm_instr *tail = NULL;
 	uint line_no = 1;
+	compile_status.error = 0;
 
 	*opcodelen = 0;
 
@@ -423,6 +434,7 @@ pasm_compile(const char *file, uint *opcodelen)
 			continue;
 		}
 
+		// instr should only return NULL on error
 		struct pasm_instr *instr = pasm_translate_line(line);
 
 		if (instr) {
@@ -432,17 +444,22 @@ pasm_compile(const char *file, uint *opcodelen)
 				tail->next = instr;
 				tail = instr;
 			}
-		} else {
-			if (g_comp_error) {
-				char err[128];
-				sprintf(err, "Error at line %u: %s", line_no, g_comp_error);
-				panglog(LOG_CRITICAL, err);
-				return NULL;
-			} else {
-				char err[32];
-				sprintf(err, "Unkown error at line %d", line_no);
-				panglog(LOG_CRITICAL, err);
-			}
+		} 
+
+		// Handle compilation errors
+		if (compile_status.error) {
+			char err[128];
+			sprintf(err, "Error at line %u:\n %s", line_no, compile_status.emsg);
+			panglog(LOG_CRITICAL, err);
+			return NULL;
+		}
+
+		// Should never happen
+		if (!instr) {
+			char err[32];
+			sprintf(err, "Unkown error at line %d", line_no);
+			panglog(LOG_CRITICAL, err);
+			return NULL;
 		}
 
 		line_no++;
