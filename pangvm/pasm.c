@@ -338,6 +338,8 @@ pasm_translate_aritcmp(struct pasm_line *pline,
 			instr->arglen = 4;
 			instr->arg32 = pasm_get_literal(pline->arg0);
 			break;
+		default:
+			pasm_error(1, "Unhandled argument type");
 	}
 }
 
