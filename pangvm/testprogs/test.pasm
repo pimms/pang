@@ -1,8 +1,4 @@
-	mov 	ra $16
-	mov 	rb $2
-	mul		$2
-	mul		$2
-	mul		$2
-	div		$16
-
-	push	ra
+	add		$1
+	cmp		$5
+	jl		$4
+	mul		$50

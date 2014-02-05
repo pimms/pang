@@ -106,8 +106,8 @@ void
 dbg_registers(struct regs *r)
 {
 	char str[160];
-	sprintf(str, "ra:%x rb:%x rc:%x rd:%x  ip:%x bp:%x sp:%x",
-		r->r_a, r->r_b, r->r_c, r->r_d, r->r_ip, r->r_bp, r->r_sp);
+	sprintf(str, "ra:%x rb:%x rc:%x rd:%x  ip:%x bp:%x sp:%x res:%x",
+		r->r_a, r->r_b, r->r_c, r->r_d, r->r_ip, r->r_bp, r->r_sp, r->r_res);
 
 	panglog(LOG_VERBOSE, str);
 }

@@ -36,6 +36,9 @@ struct regs
 	int r_b;
 	int r_c;
 	int r_d;
+
+	// Comparison result register
+	int r_res;
 };
 
 struct regs* regs_create();
@@ -85,7 +88,7 @@ FUNC_OPCODE(op_mov_l);
 FUNC_OPCODE(op_call);
 FUNC_OPCODE(op_ret);
 
-const int* arit_cmp_get_ext(struct env*, uint8, const void*);;
+const int* arit_cmp_get_ext(struct env*, uint8, const void*);
 FUNC_OPCODE(op_add);
 FUNC_OPCODE(op_sub);
 FUNC_OPCODE(op_mul);

@@ -404,41 +404,93 @@ FUNC_OPCODE(op_and)
 
 FUNC_OPCODE(op_cmp) 
 {
+	env->reg->r_res = 0;
 
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (env->reg->r_a < *ext) {
+			env->reg->r_res |= CMP_RES_LESS;
+		} else if (env->reg->r_a > *ext) {
+			env->reg->r_res |= CMP_RES_GREAT;
+		} else if (env->reg->r_a == *ext) {
+			env->reg->r_res |= CMP_RES_EQUAL;
+		}
+	}
 }
 
 
 FUNC_OPCODE(op_jmp) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		env->reg->r_ip = *ext;
+	}
 }
 
 FUNC_OPCODE(op_je) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (env->reg->r_res & CMP_RES_EQUAL) {
+			env->reg->r_ip = *ext;
+		}
+	}
 }
 
 FUNC_OPCODE(op_jne) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (!(env->reg->r_res & CMP_RES_EQUAL)) {
+			env->reg->r_ip = *ext;
+		}
+	}
 }
 
 FUNC_OPCODE(op_jl) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (env->reg->r_res & CMP_RES_LESS) {
+			env->reg->r_ip = *ext;
+		}
+	}
 }
 
 FUNC_OPCODE(op_jle) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (env->reg->r_res & (CMP_RES_LESS|CMP_RES_EQUAL)) {
+			env->reg->r_ip = *ext;
+		}
+	}
 }
 
 FUNC_OPCODE(op_jg) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (env->reg->r_res & CMP_RES_GREAT) {
+			env->reg->r_ip = *ext;
+		}
+	}
 }
 
 FUNC_OPCODE(op_jge) 
 {
-
+	const int *ext = arit_cmp_get_ext(
+		env, (op & OP_MASK_ARIT_CMP_ARG), exarg);
+	if (ext) {
+		if (env->reg->r_res & (CMP_RES_GREAT|CMP_RES_EQUAL)) {
+			env->reg->r_ip = *ext;
+		}
+	}
 }
