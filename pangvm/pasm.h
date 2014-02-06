@@ -4,11 +4,12 @@
 #include "pangvm.h"
 
 
-#define PASM_ARG_REGISTER 0
-#define PASM_ARG_LITERAL 1
-#define PASM_ARG_MEMORY 2
-#define PASM_ARG_DATA 3
-#define PASM_ARG_UNDEFINED 4
+#define PASM_ARG_REGISTER 	0
+#define PASM_ARG_LITERAL 	1
+#define PASM_ARG_MEMORY 	2
+#define PASM_ARG_DATA 		3
+#define PASM_ARG_UNDEFINED 	4
+#define PASM_ARG_LABEL 		5
 
 
 struct pasm_line 
@@ -19,12 +20,24 @@ struct pasm_line
 };
 
 
+// Linked list of labels. Labels first reference the following
+// instruction. The offset of the label is then calculated, and
+// instructions referencing the label (jmps) then use this offset.
+struct pasm_label
+{
+	struct pasm_label *next;
+	struct pasm_instr *instr;
+	uint mem_offset;
+};
+
+
 // Linked list of intermediate instructions. One line of pasm
 // code produces one pasm_instr struct. The structs are later
 // used to generate the bytecode itself. 
 struct pasm_instr 
 {
 	struct pasm_instr *next;
+	struct pasm_label *label;
 	uint8 oper;
 	uint8 arg8;
 	uint arg32;
