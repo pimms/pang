@@ -81,6 +81,9 @@ pasm_program_add_label(	struct pasm_program *prog,
 		prog->tail_label->next = label;
 		prog->tail_label = label;
 	}
+	
+	label->next = prog->label_queue;
+	prog->label_queue = label;
 }
 
 void

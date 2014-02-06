@@ -55,7 +55,9 @@ struct pasm_program
 
 	// Labels which have not yet been assigned an instruction
 	// reference are put in the "label_queue". All labels in the
-	// queue will point to the next instruction added.
+	// queue will point to the next instruction added. The order
+	// of the labels is not important, multiple items in the queue
+	// means that no instructions are defined between them.
 	struct pasm_label *label_queue;
 };
 
