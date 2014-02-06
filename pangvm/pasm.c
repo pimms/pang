@@ -82,6 +82,15 @@ pasm_program_add_label(	struct pasm_program *prog,
 	}
 }
 
+void
+pasm_program_add_line(struct pasm_program *prog, char *line)
+{
+	struct pasm_instr *instr;
+
+	instr = pasm_translate_line(line);
+	pasm_program_add_instr(prog, instr);
+}
+
 uint8*
 pasm_program_compile(struct pasm_program *prog, uint *len)
 {
@@ -533,26 +542,13 @@ pasm_compile(const char *file, uint *opcodelen)
 			continue;
 		}
 
-		// instr should only return NULL on error
-		struct pasm_instr *instr = pasm_translate_line(line);
-
-		if (instr) {
-			pasm_program_add_instr(prog, instr);
-		} 
+		pasm_program_add_line(prog, line);
 
 		// Handle compilation errors
 		if (compile_status.error) {
 			char err[128];
 			sprintf(err, "Error at line %u:\n %s", 
 					line_no, compile_status.emsg);
-			panglog(LOG_CRITICAL, err);
-			return NULL;
-		}
-
-		// Should never happen
-		if (!instr) {
-			char err[32];
-			sprintf(err, "Unkown error at line %d", line_no);
 			panglog(LOG_CRITICAL, err);
 			return NULL;
 		}

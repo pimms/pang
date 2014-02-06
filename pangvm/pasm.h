@@ -52,12 +52,18 @@ struct pasm_program
 
 	struct pasm_label *head_label;
 	struct pasm_label *tail_label;
+
+	// Labels which have not yet been assigned an instruction
+	// reference are put in the "label_queue". All labels in the
+	// queue will point to the next instruction added.
+	struct pasm_label *label_queue;
 };
 
 struct pasm_program* pasm_program_create();
 void pasm_program_destroy(struct pasm_program*);
 void pasm_program_add_instr(struct pasm_program*, struct pasm_instr*);
 void pasm_program_add_label(struct pasm_program*, struct pasm_label*);
+void pasm_program_add_line(struct pasm_program*, char *line);
 uint8* pasm_program_compile(struct pasm_program*, uint *len);
 
 
