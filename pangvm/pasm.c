@@ -187,6 +187,37 @@ pasm_get_literal(char *arg)
 
 
 struct pasm_instr*
+pasm_translate_line(char *line)
+{
+	struct pasm_line pline;
+	char *tok;
+
+	memset(pline.instr, 0, 16);
+	memset(pline.arg0, 0, 16);
+	memset(pline.arg1, 0, 16);
+
+	tok = strtok(line, " ");
+	if (!tok) {
+		return NULL;
+	}
+
+	strcpy(pline.instr, tok);
+
+	tok = strtok(NULL, " ");
+	if (tok) strcpy(pline.arg0, tok);
+
+	tok = strtok(NULL, " ");
+	if (tok) strcpy(pline.arg1, tok);
+
+	if (strtok(NULL, " ")) {
+		panglog(LOG_CRITICAL, "Unexpected token");
+		return NULL;
+	}
+
+	return pasm_translate_pasm_line(&pline);
+}
+
+struct pasm_instr*
 pasm_translate_pasm_line(struct pasm_line *pline)
 {
 	struct pasm_instr *instr;
@@ -346,37 +377,6 @@ pasm_translate_aritcmp(struct pasm_line *pline,
 }
 
 
-
-struct pasm_instr*
-pasm_translate_line(char *line)
-{
-	struct pasm_line pline;
-	char *tok;
-
-	memset(pline.instr, 0, 16);
-	memset(pline.arg0, 0, 16);
-	memset(pline.arg1, 0, 16);
-
-	tok = strtok(line, " ");
-	if (!tok) {
-		return NULL;
-	}
-
-	strcpy(pline.instr, tok);
-
-	tok = strtok(NULL, " ");
-	if (tok) strcpy(pline.arg0, tok);
-
-	tok = strtok(NULL, " ");
-	if (tok) strcpy(pline.arg1, tok);
-
-	if (strtok(NULL, " ")) {
-		panglog(LOG_CRITICAL, "Unexpected token");
-		return NULL;
-	}
-
-	return pasm_translate_pasm_line(&pline);
-}
 
 char* 
 pasm_clean_line(char *str)
