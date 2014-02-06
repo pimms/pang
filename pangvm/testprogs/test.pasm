@@ -3,3 +3,4 @@ main:
 	cmp		$2
 	jl		$4
 	mul		$50
+END:

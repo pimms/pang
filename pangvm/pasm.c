@@ -70,6 +70,9 @@ pasm_program_add_instr(	struct pasm_program *prog,
 	}
 
 	while (prog->label_queue) {
+		printf("label %s -> %x\n",
+			prog->label_queue->name, instr->oper);
+
 		prog->label_queue->instr = instr;
 		prog->label_queue = prog->label_queue->next;
 	}
@@ -87,8 +90,9 @@ pasm_program_add_label(	struct pasm_program *prog,
 		prog->tail_label = label;
 	}
 
-	label->next = prog->label_queue;
-	prog->label_queue = label;
+	if (!prog->label_queue) {
+		prog->label_queue = label;
+	}
 }
 
 void
