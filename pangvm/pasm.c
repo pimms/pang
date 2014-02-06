@@ -315,7 +315,7 @@ pasm_translate_instr_line(char *line)
 	if (tok) strcpy(pline.arg1, tok);
 
 	if (strtok(NULL, " ")) {
-		panglog(LOG_CRITICAL, "Unexpected token");
+		pasm_error(1, "Unexpected token");
 		return NULL;
 	}
 
