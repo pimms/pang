@@ -70,8 +70,10 @@ pasm_program_add_instr(	struct pasm_program *prog,
 	}
 
 	while (prog->label_queue) {
-		printf("label %s -> %x\n",
+		char buf[64];
+		sprintf(buf, "label %s -> %x\n",
 			prog->label_queue->name, instr->oper);
+		panglog(LOG_VERBOSE, buf);
 
 		prog->label_queue->instr = instr;
 		prog->label_queue = prog->label_queue->next;
