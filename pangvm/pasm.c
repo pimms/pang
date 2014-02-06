@@ -87,7 +87,7 @@ pasm_program_add_line(struct pasm_program *prog, char *line)
 {
 	struct pasm_instr *instr;
 
-	instr = pasm_translate_line(line);
+	instr = pasm_translate_instr_line(line);
 	pasm_program_add_instr(prog, instr);
 }
 
@@ -292,7 +292,7 @@ pasm_get_literal(char *arg)
 
 
 struct pasm_instr*
-pasm_translate_line(char *line)
+pasm_translate_instr_line(char *line)
 {
 	struct pasm_line pline;
 	char *tok;

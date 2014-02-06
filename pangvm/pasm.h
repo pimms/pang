@@ -78,7 +78,7 @@ int pasm_get_literal(char *arg);
 
 // Translate one line of pasm into an instruction. An intermediate
 // type, pasm_line, is used before generating the instruction.
-struct pasm_instr* pasm_translate_line(char *line);
+struct pasm_instr* pasm_translate_instr_line(char *line);
 
 struct pasm_instr* pasm_translate_pasm_line(struct pasm_line *pline);
 void pasm_translate_stackmem(struct pasm_line*, struct pasm_instr*);
