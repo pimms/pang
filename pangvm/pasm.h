@@ -80,6 +80,13 @@ int pasm_get_literal(char *arg);
 // type, pasm_line, is used before generating the instruction.
 struct pasm_instr* pasm_translate_instr_line(char *line);
 
+// Returns NULL if the line does not meet the label format spec.
+// Labels must match the regex [a-zA-Z](a-zA-Z0-9)*: 
+// 	(must start with a char, contain only letters and numbers, and
+//   end with a colon). 
+// Use this function to test wheter a line is a label or not. 
+struct pasm_label* pasm_translate_label_line(char *line);
+
 struct pasm_instr* pasm_translate_pasm_line(struct pasm_line *pline);
 void pasm_translate_stackmem(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_stackmem_mov(struct pasm_line*, struct pasm_instr*);

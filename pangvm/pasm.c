@@ -7,6 +7,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 
 // Upon error, set "error" to a non-zero value
@@ -321,6 +322,26 @@ pasm_translate_instr_line(char *line)
 
 	return pasm_translate_pasm_line(&pline);
 }
+
+struct pasm_label*
+pasm_translate_label_line(char *line)
+{
+	if (!isalpha(line[0]) || line[strlen(line)-1] != ':') {
+		return NULL;
+	}
+
+	for (int i = 1; i < strlen(line)-1; ++i) {
+		if (!isalnum(line[i])) {
+			return NULL;
+		}
+	}
+
+	struct pasm_label *label;
+	label = (struct pasm_label*)malloc(sizeof(struct pasm_label));
+	memset(label, 0, sizeof(struct pasm_label));
+	return label;
+}
+
 
 struct pasm_instr*
 pasm_translate_pasm_line(struct pasm_line *pline)
