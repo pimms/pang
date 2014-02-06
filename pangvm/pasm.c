@@ -28,6 +28,19 @@ pasm_error(uint err, const char *msg)
 
 
 
+
+struct pasm_instr*
+pasm_instr_create() {
+	struct pasm_instr *instr;
+
+	instr = (struct pasm_instr*)malloc(sizeof(struct pasm_instr));
+	memset(instr, 0, sizeof(struct pasm_instr));
+
+	return instr;
+}
+
+
+
 struct pasm_program*
 pasm_program_create() 
 {
@@ -277,11 +290,17 @@ pasm_get_arg_type(char *arg)
 	}
 
 	if (arg[0] == '%') {
-		struct pasm_label *label;
-		label = pasm_translate_label_line(arg);
-		if (label != NULL) {
-			free(label);
-			return PASM_ARG_LABEL;
+		if (isalpha(arg[1])) {
+			int label = 1;
+			for (int i=2; i<strlen(arg); i++) {
+				if (!isalnum(arg[i])) {
+					label = 0;
+				}
+			}
+
+			if (label) {
+				return PASM_ARG_LABEL;
+			}
 		}
 	}
 
@@ -386,8 +405,7 @@ pasm_translate_pasm_line_to_instr(struct pasm_line *pline)
 
 	uint8 opcode = pasm_get_op(pline->instr);
 
-	instr = (struct pasm_instr*)malloc(sizeof(struct pasm_instr));
-	instr->next = NULL;
+	instr = pasm_instr_create();
 	instr->oper = opcode;
 
 	if (strlen(pline->arg0)) num_args++;
@@ -481,7 +499,9 @@ pasm_translate_stackmem_mov(struct pasm_line *pline,
 		instr->arglen = 4;
 		instr->oper = OP_MOV_LTRL | (instr->oper & OP_MASK_STACKMEM_REG);
 		instr->arg32 = pasm_get_literal(arg);
-	} 
+	} else {
+		pasm_error(1, "Invalid argument type in mov operation");
+	}
 }
 
 void
@@ -532,7 +552,18 @@ pasm_translate_aritcmp(struct pasm_line *pline,
 			instr->arglen = 4;
 			instr->arg32 = pasm_get_literal(pline->arg0);
 			break;
-		default:
+		case PASM_ARG_LABEL:
+			if (instr->oper >= OP_JMP && instr->oper <= OP_JGE) {
+				instr->oper |= OP_ARG_ARIT_CMP_LABEL;
+				instr->arglen = 4;
+				instr->arg32 = ~0;
+				memcpy(instr->label_name, pline->arg0+1,
+					strlen(pline->arg0)-1);
+				break;
+			} else {
+				/* FALLTHROUGH */
+			}			
+		default: 
 			pasm_error(1, "Unhandled argument type");
 	}
 }

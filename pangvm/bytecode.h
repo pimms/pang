@@ -81,6 +81,7 @@
 #define OP_ARG_ARIT_CMP_REG 	0x00 	// An 8 bit register ref.
 #define OP_ARG_ARIT_CMP_MEM 	0x01	// A 32 bit memory ptr
 #define OP_ARG_ARIT_CMP_DATA 	0x02	// A 32 bit data ptr
+#define OP_ARG_ARIT_CMP_LABEL 	0x03	// A 32 bit literal
 #define OP_ARG_ARIT_CMP_LITERAL	0x03	// A 32 bit literal
 
 #define OP_ADD 			0xC0

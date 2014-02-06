@@ -37,13 +37,17 @@ struct pasm_label
 struct pasm_instr 
 {
 	struct pasm_instr *next;
-	struct pasm_label *label;
 	uint8 oper;
 	uint8 arg8;
 	uint arg32;
 	uint arglen;
 	uint offset;
+
+	char label_name[32];
 };
+
+struct pasm_instr* pasm_instr_create();
+
 
 struct pasm_program 
 {
@@ -87,7 +91,7 @@ struct pasm_instr* pasm_translate_instr_line(char *line);
 // Use this function to test wheter a line is a label or not. 
 struct pasm_label* pasm_translate_label_line(char *line);
 
-struct pasm_instr* pasm_translate_pasm_line_to_instr(struct pasm_line *pline);
+struct pasm_instr* pasm_translate_pasm_line_to_instr(struct pasm_line *pline); 
 void pasm_translate_stackmem(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_stackmem_mov(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_function(struct pasm_line*, struct pasm_instr*);
