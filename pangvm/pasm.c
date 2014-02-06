@@ -276,6 +276,15 @@ pasm_get_arg_type(char *arg)
 		}
 	}
 
+	if (arg[0] == '%') {
+		struct pasm_label *label;
+		label = pasm_translate_label_line(arg);
+		if (label != NULL) {
+			free(label);
+			return PASM_ARG_LABEL;
+		}
+	}
+
 	return PASM_ARG_UNDEFINED;
 }
 
@@ -342,7 +351,7 @@ pasm_translate_instr_line(char *line)
 		return NULL;
 	}
 
-	return pasm_translate_pasm_line(&pline);
+	return pasm_translate_pasm_line_to_instr(&pline);
 }
 
 struct pasm_label*
@@ -370,7 +379,7 @@ pasm_translate_label_line(char *line)
 
 
 struct pasm_instr*
-pasm_translate_pasm_line(struct pasm_line *pline)
+pasm_translate_pasm_line_to_instr(struct pasm_line *pline)
 {
 	struct pasm_instr *instr;
 	uint num_args = 0;

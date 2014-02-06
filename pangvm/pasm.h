@@ -87,7 +87,7 @@ struct pasm_instr* pasm_translate_instr_line(char *line);
 // Use this function to test wheter a line is a label or not. 
 struct pasm_label* pasm_translate_label_line(char *line);
 
-struct pasm_instr* pasm_translate_pasm_line(struct pasm_line *pline);
+struct pasm_instr* pasm_translate_pasm_line_to_instr(struct pasm_line *pline);
 void pasm_translate_stackmem(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_stackmem_mov(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_function(struct pasm_line*, struct pasm_instr*);
