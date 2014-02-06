@@ -42,6 +42,7 @@ struct pasm_instr
 	uint8 arg8;
 	uint arg32;
 	uint arglen;
+	uint offset;
 };
 
 struct pasm_program 

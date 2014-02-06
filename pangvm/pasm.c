@@ -88,9 +88,10 @@ pasm_program_compile(struct pasm_program *prog, uint *len)
 	struct pasm_instr *it = prog->head_instr;
 	uint8 *opcode = NULL;
 
-	// Calculate the required number of bytes
+	// Calculate the required number of bytes.
 	*len = 4;
 	while (it) {
+		it->offset = *len;
 		*len += 1 + it->arglen;
 		it = it->next;
 	}
