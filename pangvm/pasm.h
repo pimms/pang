@@ -39,15 +39,15 @@ uint pasm_get_reg_alias(char *reg);
 uint pasm_get_memory_addr(char *arg);
 int pasm_get_literal(char *arg);
 
+
+// Translate one line of pasm into an instruction
+struct pasm_instr* pasm_translate_line(char *line);
+
 struct pasm_instr* pasm_translate_pasm_line(struct pasm_line *pline);
-void pasm_translate_stackmem(struct pasm_line *pline, struct pasm_instr*);
+void pasm_translate_stackmem(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_stackmem_mov(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_function(struct pasm_line*, struct pasm_instr*);
 void pasm_translate_aritcmp(struct pasm_line*, struct pasm_instr*);
-
-
-// Translate one line of pasm into a struct
-struct pasm_instr* pasm_translate_line(char *line);
 
 // Remove comments and padding whitespace. All whitespace is 
 // converted to " " (spaces).
