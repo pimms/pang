@@ -68,6 +68,7 @@ void pasm_program_destroy(struct pasm_program*);
 void pasm_program_add_instr(struct pasm_program*, struct pasm_instr*);
 void pasm_program_add_label(struct pasm_program*, struct pasm_label*);
 void pasm_program_add_line(struct pasm_program*, char *line);
+struct pasm_label* pasm_program_get_label(struct pasm_program*, const char*);
 uint8* pasm_program_compile(struct pasm_program*, uint *len);
 
 

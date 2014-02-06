@@ -127,6 +127,22 @@ pasm_program_add_line(struct pasm_program *prog, char *line)
 	}
 }
 
+struct pasm_label*
+pasm_program_get_label(struct pasm_program *prog, const char *name)
+{
+	// TODO: Improve search performance
+	struct pasm_label *label = prog->head_label;
+
+	while (label) {
+		if (!strcmp(label->name, name)) {
+			break;
+		}
+		label = label->next;
+	}
+
+	return label;
+}
+
 uint8*
 pasm_program_compile(struct pasm_program *prog, uint *len)
 {
