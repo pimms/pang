@@ -354,7 +354,11 @@ pasm_translate_label_line(char *line)
 
 	struct pasm_label *label;
 	label = (struct pasm_label*)malloc(sizeof(struct pasm_label));
+
+	// Copy the name into the label
 	memset(label, 0, sizeof(struct pasm_label));
+	memcpy(label->name, line, strlen(line)-1);
+
 	return label;
 }
 

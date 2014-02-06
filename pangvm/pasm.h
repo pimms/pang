@@ -27,6 +27,7 @@ struct pasm_label
 {
 	struct pasm_label *next;
 	struct pasm_instr *instr;
+	char name[32];
 	uint mem_offset;
 };
 
