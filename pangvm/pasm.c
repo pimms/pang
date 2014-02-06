@@ -157,6 +157,13 @@ pasm_program_compile(struct pasm_program *prog, uint *len)
 		it = it->next;
 	}
 
+	// Assign mem_offset to all labels
+	for (struct pasm_label *l = prog->head_label; l; l=l->next) {
+		if (l->instr) {
+			l->mem_offset = l->instr->offset;
+		}
+	}
+
 	// Store the instructions in the program area
 	opcode = (uint8*)malloc(*len);
 	memset(opcode, 0, *len);
@@ -170,6 +177,13 @@ pasm_program_compile(struct pasm_program *prog, uint *len)
 		if (it->arglen == 1) {
 			opcode[i++] = it->arg8;
 		} else if (it->arglen == 4) {
+			// Handle labels
+			if (strlen(it->label_name)) {
+				struct pasm_label *label;
+				label = pasm_program_get_label(prog, it->label_name);
+				it->arg32 = label->mem_offset;
+			} 
+
 			*((uint*)(opcode+i)) = it->arg32;
 			i += 4;
 		}
@@ -408,6 +422,7 @@ pasm_translate_label_line(char *line)
 	// Copy the name into the label
 	memset(label, 0, sizeof(struct pasm_label));
 	memcpy(label->name, line, strlen(line)-1);
+	label->mem_offset = 0x7FFFFFFF;
 
 	return label;
 }

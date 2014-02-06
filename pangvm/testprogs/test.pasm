@@ -1,6 +1,11 @@
+	jmp		%main
+
+fib:
+	mov		ra $10
+	jmp		%L0
+
 main:
-	add		$1
-	cmp		$2
-	jl		%main
-	mul		$50
-END:
+	jmp 	%fib
+L0:
+	mov		rb ra
+	
