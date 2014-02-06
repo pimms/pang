@@ -33,8 +33,7 @@ struct pasm_label
 
 
 // Linked list of intermediate instructions. One line of pasm
-// code produces one pasm_instr struct. The structs are later
-// used to generate the bytecode itself. 
+// code produces one pasm_instr struct.
 struct pasm_instr 
 {
 	struct pasm_instr *next;
