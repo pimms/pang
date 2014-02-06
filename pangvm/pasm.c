@@ -26,6 +26,101 @@ pasm_error(uint err, const char *msg)
 }
 
 
+
+struct pasm_program*
+pasm_program_create() 
+{
+	struct pasm_program *prog;
+	prog = (struct pasm_program*)malloc(sizeof(struct pasm_program));
+	memset(prog, 0, sizeof(struct pasm_program));
+	return prog;
+}
+
+void 
+pasm_program_destroy(struct pasm_program *program)
+{
+	while (program->head_instr) {
+		struct pasm_instr *next = program->head_instr->next;
+
+		free(program->head_instr);
+		program->head_instr = next;
+	}
+
+	while (program->head_label) {
+		struct pasm_label *next = program->head_label->next;
+
+		free(program->head_label);
+		program->head_label = next;
+	}
+
+	free(program);
+}
+
+void 
+pasm_program_add_instr(	struct pasm_program *prog,
+						struct pasm_instr *instr)
+{
+	if (!prog->head_instr) {
+		prog->head_instr = instr;
+		prog->tail_instr = instr;
+	} else {
+		prog->tail_instr->next = instr;
+		prog->tail_instr = instr;
+	}
+}
+
+void
+pasm_program_add_label(	struct pasm_program *prog, 
+						struct pasm_label *label)
+{
+	if (!prog->head_label) {
+		prog->head_label = label;
+		prog->tail_label = label;
+	} else {
+		prog->tail_label->next = label;
+		prog->tail_label = label;
+	}
+}
+
+uint8*
+pasm_program_compile(struct pasm_program *prog, uint *len)
+{
+	struct pasm_instr *it = prog->head_instr;
+	uint8 *opcode = NULL;
+
+	// Calculate the required number of bytes
+	*len = 4;
+	while (it) {
+		*len += 1 + it->arglen;
+		it = it->next;
+	}
+
+	// Store the instructions in the program area
+	opcode = (uint8*)malloc(*len);
+	memset(opcode, 0, *len);
+	*(int*)opcode = 4; 	// Start execution at byte no. 5
+	it = prog->head_instr;
+	uint i = 4;
+
+	while (it) {
+		opcode[i++] = it->oper;
+
+		if (it->arglen == 1) {
+			opcode[i++] = it->arg8;
+		} else if (it->arglen == 4) {
+			*((uint*)(opcode+i)) = it->arg32;
+			i += 4;
+		}
+
+		it = it->next;
+	}
+
+	return opcode;
+}
+
+
+
+
 uint8
 pasm_get_op(const char *instr) 
 {
@@ -415,52 +510,14 @@ pasm_clean_line(char *str)
 	return str;
 }
 
-uint8*
-pasm_join_instr(struct pasm_instr *first, uint *len)
-{
-	struct pasm_instr *it = first;
-	uint8 *opcode = NULL;
-
-	// Calculate the required number of bytes
-	*len = 4;
-	while (it) {
-		*len += 1 + it->arglen;
-		it = it->next;
-	}
-
-	// Store the instructions in the program area
-	opcode = (uint8*)malloc(*len);
-	memset(opcode, 0, *len);
-	*(int*)opcode = 4; 	// Start execution at byte no. 5
-	it = first;
-	uint i = 4;
-
-	while (it) {
-		opcode[i++] = it->oper;
-
-		if (it->arglen == 1) {
-			opcode[i++] = it->arg8;
-		} else if (it->arglen == 4) {
-			*((uint*)(opcode+i)) = it->arg32;
-			i += 4;
-		}
-
-		it = it->next;
-	}
-
-	return opcode;
-}
-
 uint8* 
 pasm_compile(const char *file, uint *opcodelen)
 {
+	struct pasm_program *prog = pasm_program_create();
 	FILE *fp = NULL;
-	char buf[80];
-	struct pasm_instr *head = NULL;
-	struct pasm_instr *tail = NULL;
-	uint line_no = 1;
 	compile_status.error = 0;
-
+	char buf[80];
+	uint line_no = 1;
 	*opcodelen = 0;
 
 	fp = fopen(file, "r");
@@ -479,18 +536,14 @@ pasm_compile(const char *file, uint *opcodelen)
 		struct pasm_instr *instr = pasm_translate_line(line);
 
 		if (instr) {
-			if (!head && !tail) {
-				head = tail = instr;
-			} else {
-				tail->next = instr;
-				tail = instr;
-			}
+			pasm_program_add_instr(prog, instr);
 		} 
 
 		// Handle compilation errors
 		if (compile_status.error) {
 			char err[128];
-			sprintf(err, "Error at line %u:\n %s", line_no, compile_status.emsg);
+			sprintf(err, "Error at line %u:\n %s", 
+					line_no, compile_status.emsg);
 			panglog(LOG_CRITICAL, err);
 			return NULL;
 		}
@@ -507,7 +560,7 @@ pasm_compile(const char *file, uint *opcodelen)
 	}
 
 	uint8 *opcode;
-	opcode = pasm_join_instr(head, opcodelen);
+	opcode = pasm_program_compile(prog, opcodelen);
 	panglog(LOG_VERBOSE, "Compilation complete");
 
 	return opcode;

@@ -44,6 +44,22 @@ struct pasm_instr
 	uint arglen;
 };
 
+struct pasm_program 
+{
+	struct pasm_instr *head_instr;
+	struct pasm_instr *tail_instr;
+
+	struct pasm_label *head_label;
+	struct pasm_label *tail_label;
+};
+
+struct pasm_program* pasm_program_create();
+void pasm_program_destroy(struct pasm_program*);
+void pasm_program_add_instr(struct pasm_program*, struct pasm_instr*);
+void pasm_program_add_label(struct pasm_program*, struct pasm_label*);
+uint8* pasm_program_compile(struct pasm_program*, uint *len);
+
+
 // Get the naked bytecode from the instruction
 uint8 pasm_get_op(const char *instr);
 uint pasm_get_arg_count(uint8 op);
