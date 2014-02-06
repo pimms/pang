@@ -86,10 +86,18 @@ pasm_program_add_label(	struct pasm_program *prog,
 void
 pasm_program_add_line(struct pasm_program *prog, char *line)
 {
-	struct pasm_instr *instr;
+	struct pasm_instr *instr = NULL;
+	struct pasm_label *label = NULL;
 
-	instr = pasm_translate_instr_line(line);
-	pasm_program_add_instr(prog, instr);
+	label = pasm_translate_label_line(line);
+	if (label) {
+		pasm_program_add_label(prog, label);
+	} else {
+		instr = pasm_translate_instr_line(line);
+		if (instr) {
+			pasm_program_add_instr(prog, instr);
+		}
+	}
 }
 
 uint8*
